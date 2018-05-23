@@ -32,6 +32,13 @@ def isabove(lang="en_GB"):
     else:
         raise NotImplementedError
         
+def isbelow(lang="en_GB"):
+    
+    if lang=="en_GB":
+        return "below"
+    else:
+        raise NotImplementedError
+        
 def isclose(lang="en_GB"):
 
     if lang=="en_GB":
@@ -78,6 +85,9 @@ def get_desc_relation(relation, lang="en_GB"):
     elif relation == "above":
         return isabove(lang)
         
+    elif relation == "below":
+		return isbelow(lang)
+        
     elif relation == "close":
         return isclose(lang)
         
@@ -121,7 +131,7 @@ def add_noun_article(noun, amount, lang="en_GB"):
 def amb_desc(worldName, rel_list, iteration, lang="en_GB"):
     
     with underworlds.Context("spatial_description") as ctx:
-        world = ctx.world[worldName]
+        world = ctx.worlds[worldName]
         
         node2 = world.scene.nodes[rel_list[iteration][2]]
         amount2 = len(world.scene.nodebyname(node2.name))
@@ -152,7 +162,7 @@ def gen_spatial_desc(worldName, nodeID, lang="en_GB", descType = "Simple"):
         
     if descType == "Simple":
         #Getting a simple one word description so only check the first relation
-        description = amb_desc(worldName, rel_list, lang, 0)
+        description = amb_desc(worldName, rel_list, 0, lang)
     else:
         raise NotImplementedError
     
