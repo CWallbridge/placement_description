@@ -18,12 +18,14 @@ logging.basicConfig(level=logging.INFO)
 class NodeFrame(object)
     
     def __init__(self, idFrame, trans, rot, world, model=None, parent="root"):
+		
         self.id = idFrame
         self._world = world
         self._frameNode = self._create_mesh_node(world, idFrame, model, parent)
         self.transform_node(trans, rot)
         
     def _create_mesh_node(self, world, node, model, parent):
+		
         if model is None:
             mesh_ids = create_box_mesh(world, 0.02, 0.02, 0.02)
         else:
@@ -33,41 +35,64 @@ class NodeFrame(object)
         frameNode = world.scene.nodebyname(node)
         
         if len(frameNode) > 1:
-			logger.warning("More than one node of the same name found.")
-		
+            logger.warning("More than one node of the same name found.")
+        
         return frameNode[0].id
         
     def transform_node(self, trans, rot):
-		self._trans = trans
-		self._rot = rot
 		
-		tfMatrix = tf.TransformerROS.fromTranslationRotation(trans, rot)
-		
-		with underworlds.Context("uwds_sync") as ctx:
+        self._trans = trans
+        self._rot = rot
+        
+        tfMatrix = tf.TransformerROS.fromTranslationRotation(trans, rot)
+        
+        with underworlds.Context("uwds_sync") as ctx:
             world = ctx.worlds[self._world]
             node = world.scene.nodes[self._frameNode]
             
             node.transformation = tfMatrix
-            scene.nodes.update(node)		
-		  
+            scene.nodes.update(node)        
+          
     @property    
-    def trans(self)
-		return self._trans
-	
-	@property
-	def rot(self)
-		return self._rot
-	
-	@property
-	def 
-
+    def trans(self):
+        return self._trans
+    
+    @property
+    def rot(self):
+        return self._rot
+    
+    @property
+    def frameNode(self):
+        return self._frameNode
         
+    @property
+    def world(self):
+        return self._world
+
 
 class UwdsSync(object):
     
-    def __init__(self)
+    def __init__(self):
+		
         self.nodeFrames = {}
-    
+        
+    def update_node_frames(self, idFrame, trans, rot, world, model=None, parent="root"):
+		
+        if idFrame in self.nodeFrames:
+            self.nodeFrames[idFrame].transform_node(trans, rot)
+        else:
+            nf = NodeFrame(idFrame, trans, rot, world, model=None, parent="root")
+            self.nodeFrames[idFrame] = nf
+            
+    def get_transform(self, idFrame):
+		
+		if idFrame in self.nodeFrames:
+			trans = self.nodeFrames[idFrame].trans
+			rot = self.nodeFrames[idFrame].rot
+			return (trans,rot)
+		else:
+			logger.error("Cannot find node frame with id %s" % idFrame)
+
 
 if __name__ == "__main__":
     
