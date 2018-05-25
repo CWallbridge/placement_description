@@ -66,14 +66,14 @@ class TestDescriptions(unittest.TestCase):
         description = gen_spatial_desc(worldName, belowNode.id, "en_GB", "Simple")
         
         print(description)
-        self.assertTrue(description == "Below is below Main" or description == "Below is below Inside" or description == "Below is below OnTop") 
+        self.assertTrue(description == "Below is below Main") 
         #Technically correct but unlikely and even confusing that someone would say the second two. Need to think about how this would prioritise for complex description.
         
         southNode = world.scene.nodebyname("object")[0]
         description = gen_spatial_desc(worldName, southNode.id, "en_GB", "Simple")
         
         print(description)
-        self.assertTrue(description == "the object is to the south of Main" or description == "the object is to the south of Inside")
+        self.assertTrue(description == "the object is to the south of Main")
         
         northNode = world.scene.nodebyname("ToNorth")[0]
         northNode.name = "object"
@@ -81,13 +81,13 @@ class TestDescriptions(unittest.TestCase):
         description = gen_spatial_desc(worldName, northNode.id, "en_GB", "Simple")
         
         print(description)
-        self.assertTrue(description == "an object is to the north of Main" or description == "an object is to the north of Inside")
+        self.assertTrue(description == "an object is to the north of Main")
         
         eastNode = world.scene.nodebyname("cube")[0]
         description = gen_spatial_desc(worldName, eastNode.id, "en_GB", "Simple")
         
         print(description)
-        self.assertTrue(description == "the cube is to the east of Main" or description == "the cube is to the east of Inside")
+        self.assertTrue(description == "the cube is to the east of Main")
         
         westNode = world.scene.nodebyname("ToWest")[0]
         westNode.name = "cube"
@@ -95,7 +95,7 @@ class TestDescriptions(unittest.TestCase):
         description = gen_spatial_desc(worldName, westNode.id, "en_GB", "Simple")
         
         print(description)
-        self.assertTrue(description == "a cube is to the west of Main" or description == "a cube is to the west of Inside")
+        self.assertTrue(description == "a cube is to the west of Main")
         
     def tearDown(self):
         self.ctx.close()
