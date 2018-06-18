@@ -181,7 +181,7 @@ def check_for_exclusions(worldname, rel_list, iteration):
                             rel_excl.append(j)
                         
                     elif relation == "below":
-                        if isin(bb2, bb1) or isbelow(bb2, bb1):
+                        if isin(bb2, bb1) or isbelow(bb2, bb1) or isontop(bb2, bb1):
                             rel_excl.append(j)
                         
                     elif relation == "close":
@@ -247,6 +247,10 @@ def gen_spatial_desc(worldName, nodeID, lang="en_GB", descType = "Simple"):
     
     #Retrieve the spatial relations and sort them by priority    
     rel_list = sorted(get_node_sr(worldName, nodeID))
+    
+    if len(rel_list) == 0:
+        description = "No relations for Node %s" % nodeID
+        return description
         
     if descType == "Simple":
         #Getting a simple one level description so only check the first relation
