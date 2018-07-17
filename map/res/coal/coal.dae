@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <asset>
+    <contributor>
+      <author>Blender User</author>
+      <authoring_tool>Blender 2.79.0 commit date:2018-03-22, commit time:14:10, hash:f4dc9f9d68b</authoring_tool>
+    </contributor>
+    <created>2018-07-06T11:13:46</created>
+    <modified>2018-07-06T11:13:46</modified>
+    <unit name="meter" meter="1"/>
+    <up_axis>Z_UP</up_axis>
+  </asset>
+  <library_images>
+    <image id="turf_png" name="turf_png">
+      <init_from>turf.png</init_from>
+    </image>
+    <image id="smokestack_png" name="smokestack_png">
+      <init_from>smokestack.png</init_from>
+    </image>
+    <image id="lev2_png" name="lev2_png">
+      <init_from>lev2.png</init_from>
+    </image>
+    <image id="lev1_png" name="lev1_png">
+      <init_from>lev1.png</init_from>
+    </image>
+  </library_images>
+  <library_effects>
+    <effect id="Material-effect">
+      <profile_COMMON>
+        <technique sid="common">
+          <phong>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <ambient>
+              <color sid="ambient">0 0 0 1</color>
+            </ambient>
+            <diffuse>
+              <color sid="diffuse">0.64 0.64 0.64 1</color>
+            </diffuse>
+            <specular>
+              <color sid="specular">0.5 0.5 0.5 1</color>
+            </specular>
+            <shininess>
+              <float sid="shininess">50</float>
+            </shininess>
+            <index_of_refraction>
+              <float sid="index_of_refraction">1</float>
+            </index_of_refraction>
+          </phong>
+        </technique>
+        <extra>
+          <technique profile="GOOGLEEARTH">
+            <double_sided sid="double_sided" type="int">1</double_sided>
+          </technique>
+        </extra>
+      </profile_COMMON>
+      <extra><technique profile="MAX3D"><double_sided>1</double_sided></technique></extra>
+    </effect>
+    <effect id="Smokestack_Mat-effect">
+      <profile_COMMON>
+        <newparam sid="smokestack_png-surface">
+          <surface type="2D">
+            <init_from>smokestack_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="smokestack_png-sampler">
+          <sampler2D>
+            <source>smokestack_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <phong>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <ambient>
+              <color sid="ambient">0 0 0 1</color>
+            </ambient>
+            <diffuse>
+              <texture texture="smokestack_png-sampler"/>
+            </diffuse>
+            <specular>
+              <color sid="specular">0.5 0.5 0.5 1</color>
+            </specular>
+            <shininess>
+              <float sid="shininess">50</float>
+            </shininess>
+            <index_of_refraction>
+              <float sid="index_of_refraction">1</float>
+            </index_of_refraction>
+          </phong>
+        </technique>
+        <extra>
+          <technique profile="GOOGLEEARTH">
+            <double_sided sid="double_sided" type="int">1</double_sided>
+          </technique>
+        </extra>
+      </profile_COMMON>
+      <extra><technique profile="MAX3D"><double_sided>1</double_sided></technique></extra>
+    </effect>
+    <effect id="Lev2_Mat-effect">
+      <profile_COMMON>
+        <newparam sid="lev2_png-surface">
+          <surface type="2D">
+            <init_from>lev2_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="lev2_png-sampler">
+          <sampler2D>
+            <source>lev2_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <phong>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <ambient>
+              <color sid="ambient">0 0 0 1</color>
+            </ambient>
+            <diffuse>
+              <texture texture="lev2_png-sampler"/>
+            </diffuse>
+            <specular>
+              <color sid="specular">0.5 0.5 0.5 1</color>
+            </specular>
+            <shininess>
+              <float sid="shininess">50</float>
+            </shininess>
+            <index_of_refraction>
+              <float sid="index_of_refraction">1</float>
+            </index_of_refraction>
+          </phong>
+        </technique>
+        <extra>
+          <technique profile="GOOGLEEARTH">
+            <double_sided sid="double_sided" type="int">1</double_sided>
+          </technique>
+        </extra>
+      </profile_COMMON>
+      <extra><technique profile="MAX3D"><double_sided>1</double_sided></technique></extra>
+    </effect>
+    <effect id="Lev1_Mat-effect">
+      <profile_COMMON>
+        <newparam sid="lev1_png-surface">
+          <surface type="2D">
+            <init_from>lev1_png</init_from>
+          </surface>
+        </newparam>
+        <newparam sid="lev1_png-sampler">
+          <sampler2D>
+            <source>lev1_png-surface</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <phong>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <ambient>
+              <color sid="ambient">0 0 0 1</color>
+            </ambient>
+            <diffuse>
+              <texture texture="lev1_png-sampler"/>
+            </diffuse>
+            <specular>
+              <color sid="specular">0.5 0.5 0.5 1</color>
+            </specular>
+            <shininess>
+              <float sid="shininess">50</float>
+            </shininess>
+            <index_of_refraction>
+              <float sid="index_of_refraction">1</float>
+            </index_of_refraction>
+          </phong>
+        </technique>
+        <extra>
+          <technique profile="GOOGLEEARTH">
+            <double_sided sid="double_sided" type="int">1</double_sided>
+          </technique>
+        </extra>
+      </profile_COMMON>
+      <extra><technique profile="MAX3D"><double_sided>1</double_sided></technique></extra>
+    </effect>
+  </library_effects>
+  <library_materials>
+    <material id="Material-material" name="Material">
+      <instance_effect url="#Material-effect"/>
+    </material>
+    <material id="Smokestack_Mat-material" name="Smokestack_Mat">
+      <instance_effect url="#Smokestack_Mat-effect"/>
+    </material>
+    <material id="Lev2_Mat-material" name="Lev2_Mat">
+      <instance_effect url="#Lev2_Mat-effect"/>
+    </material>
+    <material id="Lev1_Mat-material" name="Lev1_Mat">
+      <instance_effect url="#Lev1_Mat-effect"/>
+    </material>
+  </library_materials>
+  <library_geometries>
+    <geometry id="Plane-mesh" name="Plane">
+      <mesh>
+        <source id="Plane-mesh-positions">
+          <float_array id="Plane-mesh-positions-array" count="252">32 -32 0 -32 -32 0 32 32 0 -32 32 0 -15 -12 10 -15 -12 19 -14.13397 -12.5 10 -14.13397 -12.5 19 -14.13397 -13.5 10 -14.13397 -13.5 19 -15 -14 10 -15 -14 19 -15.86603 -13.5 10 -15.86603 -13.5 19 -15.86603 -12.5 10 -15.86603 -12.5 19 -15 -4 10 -15 -4 19 -14.13397 -4.5 10 -14.13397 -4.5 19 -14.13397 -5.5 10 -14.13397 -5.5 19 -15 -6 10 -15 -6 19 -15.86603 -5.5 10 -15.86603 -5.5 19 -15.86603 -4.5 10 -15.86603 -4.5 19 -15 4 10 -15 4 19 -14.13397 3.5 10 -14.13397 3.5 19 -14.13397 2.5 10 -14.13397 2.5 19 -15 2 10 -15 2 19 -15.86603 2.5 10 -15.86603 2.5 19 -15.86603 3.5 10 -15.86603 3.5 19 -15 12 10 -15 12 19 -14.13397 11.5 10 -14.13397 11.5 19 -14.13397 10.5 10 -14.13397 10.5 19 -15 10 10 -15 10 19 -15.86603 10.5 10 -15.86603 10.5 19 -15.86603 11.5 10 -15.86603 11.5 19 -15 12 10 -15 12 19 -14.13397 11.5 10 -14.13397 11.5 19 -14.13397 10.5 10 -14.13397 10.5 19 -15 10 10 -15 10 19 -15.86603 10.5 10 -15.86603 10.5 19 -15.86603 11.5 10 -15.86603 11.5 19 -23 -19 5 -23 24 5 -2.000004 18 5 -2.000004 -13 5 -23 -19 10 -23 24 10 -2.000004 18 10 -2.000004 -13 10 -8.000002 -19 10 -8.000002 -19 5 -8.000002 24 10 -8.000002 24 5 -29 -28 0 -29 26 0 0 26 0 0 -28 0 -29 -28 5 -29 26 5 0 26 5 0 -28 5</float_array>
+          <technique_common>
+            <accessor source="#Plane-mesh-positions-array" count="84" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="Plane-mesh-normals">
+          <float_array id="Plane-mesh-normals-array" count="63">0 0 1 0.5000004 0.8660252 0 1 0 0 0.4999997 -0.8660256 0 -0.5000004 -0.8660252 0 -0.499999 0.8660261 0 -1 0 0 0 0 -1 0 1 0 0 0 1 0 -1 0 0.7071069 -0.7071067 0 0.7071069 0.7071067 0 0.499999 0.8660261 0 1 -1.69542e-6 0 0.5000004 -0.8660252 0 -0.499999 -0.8660261 0 -0.5000004 0.8660252 0 0 0 -1 0.707107 -0.7071066 0 0.7071068 0.7071068 0</float_array>
+          <technique_common>
+            <accessor source="#Plane-mesh-normals-array" count="21" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="Plane-mesh-map-0">
+          <float_array id="Plane-mesh-map-0-array" count="804">0.9998998 9.998e-5 1.00059e-4 0.9999 9.998e-5 1.00139e-4 1 1 0 0 1 0 1 1 0 0 1 0 1 1 0 0 1 0 1 1 0 0 1 0 0.9330127 0.75 0.4213567 0.5767168 0.06698727 0.75 1 1 0 0 1 0 1 1 0 0 1 0 0.5 0 0.06698727 0.2500001 0.06698727 0.75 1 1 0 0 1 0 1 1 0 0 1 0 1 1 0 0 1 0 1 1 0 0 1 0 0.9330127 0.75 0.4213567 0.5767168 0.06698727 0.75 1 1 0 0 1 0 1 1 0 0 1 0 0.5 0 0.06698727 0.2500001 0.06698727 0.75 1 1 0 0 1 0 1 1 0 0 1 0 1 1 0 0 1 0 1 1 0 0 1 0 0.9330127 0.75 0.4213567 0.5767168 0.06698727 0.75 1 1 0 0 1 0 1 1 0 0 1 0 0.5 0 0.06698727 0.2500001 0.06698727 0.75 1 1 0 0 1 0 1 1 0 0 1 0 1 1 0 0 1 0 1 1 0 0 1 0 0.9330127 0.75 0.4213567 0.5767168 0.06698727 0.75 1 1 0 0 1 0 1 1 0 0 1 0 0.5 0 0.06698727 0.2500001 0.06698727 0.75 1 1 0 0 1 0 1 1 0 0 1 0 1 1 0 0 1 0 1 1 0 0 1 0 0.9330127 0.75 0.4213567 0.5767168 0.06698727 0.75 1 1 0 0 1 0 1 1 0 0 1 0 0.5 0 0.06698727 0.2500001 0.06698727 0.75 0.1515151 1 0 0.1224489 0.1515151 0.1224489 0.6363636 0.1020408 0.1818181 0 0.1818181 0.1020408 0.8484849 0.2448979 1 0.877551 0.8484849 0.877551 0 0 0 0 0 0 0.1818181 1 0.1818181 0.1224489 0.8181818 0.877551 0.1818181 0.1020408 0.6363636 0 0.6363636 0.1020408 0.6363636 0.1020408 0.8181818 0 0.8181818 0.1020408 0.8181818 0.1020408 0.6363636 0 0.6363637 0.1020408 0.1219512 1 0 0.1 0.1219512 0.1 0.1463415 0.08333331 0.8536586 0 0.8536586 0.08333331 0.8780488 0.1 1 1 0.8780488 1 0.1463415 0.08333331 0.8536586 0 0.8536586 0.08333331 1 0 0 1 0 0 0.8536586 1 0.1463415 0.1 0.8536586 0.1 0.9998998 9.998e-5 0.9998999 0.9999 1.00059e-4 0.9999 1 1 0 1 0 0 1 1 0 1 0 0 1 1 0 1 0 0 1 1 0 1 0 0 0.06698727 0.75 0.5 1 0.9330127 0.75 0.9330127 0.75 0.9330127 0.6140888 0.4213567 0.5767168 0.4213567 0.5767168 -0.01165586 0.6519542 0.06698727 0.75 1 1 0 1 0 0 1 1 0 1 0 0 0.06698727 0.75 0.5 1 0.9330127 0.75 0.9330127 0.75 0.9330127 0.25 0.06698727 0.75 0.9330127 0.25 0.5 0 0.06698727 0.75 1 1 0 1 0 0 1 1 0 1 0 0 1 1 0 1 0 0 1 1 0 1 0 0 0.06698727 0.75 0.5 1 0.9330127 0.75 0.9330127 0.75 0.9330127 0.6140888 0.4213567 0.5767168 0.4213567 0.5767168 -0.01165586 0.6519542 0.06698727 0.75 1 1 0 1 0 0 1 1 0 1 0 0 0.06698727 0.75 0.5 1 0.9330127 0.75 0.9330127 0.75 0.9330127 0.25 0.06698727 0.75 0.9330127 0.25 0.5 0 0.06698727 0.75 1 1 0 1 0 0 1 1 0 1 0 0 1 1 0 1 0 0 1 1 0 1 0 0 0.06698727 0.75 0.5 1 0.9330127 0.75 0.9330127 0.75 0.9330127 0.6140888 0.4213567 0.5767168 0.4213567 0.5767168 -0.01165586 0.6519542 0.06698727 0.75 1 1 0 1 0 0 1 1 0 1 0 0 0.06698727 0.75 0.5 1 0.9330127 0.75 0.9330127 0.75 0.9330127 0.25 0.06698727 0.75 0.9330127 0.25 0.5 0 0.06698727 0.75 1 1 0 1 0 0 1 1 0 1 0 0 1 1 0 1 0 0 1 1 0 1 0 0 0.06698727 0.75 0.5 1 0.9330127 0.75 0.9330127 0.75 0.9330127 0.6140888 0.4213567 0.5767168 0.4213567 0.5767168 -0.01165586 0.6519542 0.06698727 0.75 1 1 0 1 0 0 1 1 0 1 0 0 0.06698727 0.75 0.5 1 0.9330127 0.75 0.9330127 0.75 0.9330127 0.25 0.06698727 0.75 0.9330127 0.25 0.5 0 0.06698727 0.75 1 1 0 1 0 0 1 1 0 1 0 0 1 1 0 1 0 0 1 1 0 1 0 0 0.06698727 0.75 0.5 1 0.9330127 0.75 0.9330127 0.75 0.9330127 0.6140888 0.4213567 0.5767168 0.4213567 0.5767168 -0.01165586 0.6519542 0.06698727 0.75 1 1 0 1 0 0 1 1 0 1 0 0 0.06698727 0.75 0.5 1 0.9330127 0.75 0.9330127 0.75 0.9330127 0.25 0.06698727 0.75 0.9330127 0.25 0.5 0 0.06698727 0.75 0.1515151 1 0 1 0 0.1224489 0.6363636 0.1020408 0.6363636 0 0.1818181 0 0.8484849 0.2448979 1 0.2448979 1 0.877551 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.6363636 0.1224489 0.8181818 0.2448979 0.1818181 0.1224489 0.8181818 0.2448979 0.8181818 0.877551 0.1818181 0.1224489 0.8181818 0.877551 0.6363636 1 0.1818181 1 0.1818181 0.1020408 0.1818181 0 0.6363636 0 0.6363636 0.1020408 0.6363636 0 0.8181818 0 0.8181818 0.1020408 0.8181818 0 0.6363636 0 0.1219512 1 0 1 0 0.1 0.1463415 0.08333331 0.1463415 0 0.8536586 0 0.8780488 0.1 1 0.1 1 1 0.1463415 0.08333331 0.1463415 0 0.8536586 0 1 0 1 1 0 1 0.8536586 1 0.1463415 1 0.1463415 0.1</float_array>
+          <technique_common>
+            <accessor source="#Plane-mesh-map-0-array" count="402" stride="2">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="Plane-mesh-vertices">
+          <input semantic="POSITION" source="#Plane-mesh-positions"/>
+        </vertices>
+        <triangles material="Material-material" count="2">
+          <input semantic="VERTEX" source="#Plane-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#Plane-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#Plane-mesh-map-0" offset="2" set="0"/>
+          <p>0 0 0 3 0 1 1 0 2 0 0 165 2 0 166 3 0 167</p>
+        </triangles>
+        <triangles material="Smokestack_Mat-material" count="100">
+          <input semantic="VERTEX" source="#Plane-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#Plane-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#Plane-mesh-map-0" offset="2" set="0"/>
+          <p>5 1 3 6 1 4 4 1 5 7 2 6 8 2 7 6 2 8 9 3 9 10 3 10 8 3 11 11 4 12 12 4 13 10 4 14 5 0 15 13 0 16 9 0 17 15 5 18 4 5 19 14 5 20 13 6 21 14 6 22 12 6 23 10 7 24 12 7 25 14 7 26 17 1 27 18 1 28 16 1 29 19 2 30 20 2 31 18 2 32 21 3 33 22 3 34 20 3 35 23 4 36 24 4 37 22 4 38 17 0 39 25 0 40 21 0 41 27 5 42 16 5 43 26 5 44 25 6 45 26 6 46 24 6 47 22 7 48 24 7 49 26 7 50 29 1 51 30 1 52 28 1 53 31 2 54 32 2 55 30 2 56 33 3 57 34 3 58 32 3 59 35 4 60 36 4 61 34 4 62 29 0 63 37 0 64 33 0 65 39 5 66 28 5 67 38 5 68 37 6 69 38 6 70 36 6 71 34 7 72 36 7 73 38 7 74 41 1 75 42 1 76 40 1 77 43 2 78 44 2 79 42 2 80 45 3 81 46 3 82 44 3 83 47 4 84 48 4 85 46 4 86 41 0 87 49 0 88 45 0 89 51 5 90 40 5 91 50 5 92 49 6 93 50 6 94 48 6 95 46 7 96 48 7 97 50 7 98 53 1 99 54 1 100 52 1 101 55 2 102 56 2 103 54 2 104 57 3 105 58 3 106 56 3 107 59 4 108 60 4 109 58 4 110 53 0 111 61 0 112 57 0 113 63 5 114 52 5 115 62 5 116 61 6 117 62 6 118 60 6 119 58 7 120 60 7 121 62 7 122 5 13 168 7 13 169 6 13 170 7 14 171 9 14 172 8 14 173 9 15 174 11 15 175 10 15 176 11 16 177 13 16 178 12 16 179 9 0 180 7 0 181 5 0 182 5 0 183 15 0 184 13 0 185 13 0 186 11 0 187 9 0 188 15 17 189 5 17 190 4 17 191 13 6 192 15 6 193 14 6 194 14 7 195 4 7 196 6 7 197 6 7 198 8 7 199 14 7 200 8 7 201 10 7 202 14 7 203 17 13 204 19 13 205 18 13 206 19 14 207 21 14 208 20 14 209 21 15 210 23 15 211 22 15 212 23 16 213 25 16 214 24 16 215 21 0 216 19 0 217 17 0 218 17 0 219 27 0 220 25 0 221 25 0 222 23 0 223 21 0 224 27 17 225 17 17 226 16 17 227 25 6 228 27 6 229 26 6 230 26 7 231 16 7 232 18 7 233 18 7 234 20 7 235 26 7 236 20 7 237 22 7 238 26 7 239 29 13 240 31 13 241 30 13 242 31 14 243 33 14 244 32 14 245 33 15 246 35 15 247 34 15 248 35 16 249 37 16 250 36 16 251 33 0 252 31 0 253 29 0 254 29 0 255 39 0 256 37 0 257 37 0 258 35 0 259 33 0 260 39 17 261 29 17 262 28 17 263 37 6 264 39 6 265 38 6 266 38 7 267 28 7 268 30 7 269 30 7 270 32 7 271 38 7 272 32 7 273 34 7 274 38 7 275 41 13 276 43 13 277 42 13 278 43 14 279 45 14 280 44 14 281 45 15 282 47 15 283 46 15 284 47 16 285 49 16 286 48 16 287 45 0 288 43 0 289 41 0 290 41 0 291 51 0 292 49 0 293 49 0 294 47 0 295 45 0 296 51 17 297 41 17 298 40 17 299 49 6 300 51 6 301 50 6 302 50 7 303 40 7 304 42 7 305 42 7 306 44 7 307 50 7 308 44 7 309 46 7 310 50 7 311 53 13 312 55 13 313 54 13 314 55 14 315 57 14 316 56 14 317 57 15 318 59 15 319 58 15 320 59 16 321 61 16 322 60 16 323 57 0 324 55 0 325 53 0 326 53 0 327 63 0 328 61 0 329 61 0 330 59 0 331 57 0 332 63 17 333 53 17 334 52 17 335 61 6 336 63 6 337 62 6 338 62 7 339 52 7 340 54 7 341 54 7 342 56 7 343 62 7 344 56 7 345 58 7 346 62 7 347</p>
+        </triangles>
+        <triangles material="Lev2_Mat-material" count="20">
+          <input semantic="VERTEX" source="#Plane-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#Plane-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#Plane-mesh-map-0" offset="2" set="0"/>
+          <p>69 6 123 64 6 124 68 6 125 74 8 126 65 8 127 69 8 128 71 2 129 66 2 130 70 2 131 66 7 132 67 7 133 64 7 134 69 9 135 68 9 136 70 9 137 68 10 138 73 10 139 72 10 140 72 11 141 67 11 142 71 11 143 70 12 144 75 12 145 74 12 146 69 6 348 65 6 349 64 6 350 74 8 351 75 8 352 65 8 353 71 2 354 67 2 355 66 2 356 73 7 357 64 7 358 67 7 359 64 18 360 65 18 361 66 18 362 65 7 363 75 7 364 66 7 365 72 0 366 71 0 367 68 0 368 71 0 369 70 0 370 68 0 371 70 0 372 74 0 373 69 0 374 68 10 375 64 10 376 73 10 377 72 19 378 73 19 379 67 19 380 70 20 381 66 20 382 75 20 383</p>
+        </triangles>
+        <triangles material="Lev1_Mat-material" count="12">
+          <input semantic="VERTEX" source="#Plane-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#Plane-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#Plane-mesh-map-0" offset="2" set="0"/>
+          <p>81 6 147 76 6 148 80 6 149 82 8 150 77 8 151 81 8 152 83 2 153 78 2 154 82 2 155 80 10 156 79 10 157 83 10 158 77 7 159 79 7 160 76 7 161 82 0 162 80 0 163 83 0 164 81 6 384 77 6 385 76 6 386 82 8 387 78 8 388 77 8 389 83 2 390 79 2 391 78 2 392 80 10 393 76 10 394 79 10 395 77 7 396 78 7 397 79 7 398 82 0 399 81 0 400 80 0 401</p>
+        </triangles>
+      </mesh>
+      <extra><technique profile="MAYA"><double_sided>1</double_sided></technique></extra>
+    </geometry>
+  </library_geometries>
+  <library_controllers/>
+  <library_visual_scenes>
+    <visual_scene id="Scene" name="Scene">
+      <node id="power_plant" name="power_plant" type="NODE">
+        <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <instance_geometry url="#Plane-mesh" name="power_plant">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="Material-material" target="#Material-material"/>
+              <instance_material symbol="Smokestack_Mat-material" target="#Smokestack_Mat-material"/>
+              <instance_material symbol="Lev2_Mat-material" target="#Lev2_Mat-material"/>
+              <instance_material symbol="Lev1_Mat-material" target="#Lev1_Mat-material"/>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene"/>
+  </scene>
+</COLLADA>
