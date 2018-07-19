@@ -46,7 +46,40 @@ def isclosedesc(lang="en_GB"):
         return "close to"
     else:
         raise NotImplementedError
+
+def istobackdesc(lang="en_GB", two_dim = False):
+
+    if lang=="en_GB":
+        if two_dim == False:
+            return "to the back of"
+        else:
+            return "above"
+    else:
+        raise NotImplementedError
         
+def istorightdesc(lang="en_GB"):
+
+    if lang=="en_GB":
+        return "to the right of"
+    else:
+        raise NotImplementedError
+        
+def istofrontdesc(lang="en_GB", two_dim = False):
+    if lang=="en_GB":
+        if two_dim == False:
+            return "to the front of"
+        else:
+            return "below"
+    else:
+        raise NotImplementedError
+        
+def istoleftdesc(lang="en_GB"):
+
+    if lang=="en_GB":
+        return "to the left of"
+    else:
+        raise NotImplementedError
+      
 def istonorthdesc(lang="en_GB"):
 
     if lang=="en_GB":
@@ -75,7 +108,7 @@ def istowestdesc(lang="en_GB"):
     else:
         raise NotImplementedError
 
-def get_desc_relation(relation, lang="en_GB"):
+def get_desc_relation(relation, lang="en_GB", two_dim=False):
     
     if relation == "in":
         return isindesc(lang)
@@ -91,6 +124,18 @@ def get_desc_relation(relation, lang="en_GB"):
         
     elif relation == "close":
         return isclosedesc(lang)
+        
+    elif relation == "toBack":
+        return istobackdesc(lang, two_dim)
+        
+    elif relation == "toRight":
+        return istorightdesc(lang)
+        
+    elif relation == "toFront":
+        return istofrontdesc(lang, two_dim)
+        
+    elif relation == "toLeft":
+        return istoleftdesc(lang)
         
     elif relation == "toNorth":
         return istonorthdesc(lang)
@@ -111,110 +156,30 @@ def add_noun_article(noun, amount, lang="en_GB"):
     
     d = enchant.Dict(lang)
     
-    if noun[0].isupper() or d.check(noun) == False:
+    #remove numbering - Assumed that "-" has been used in scene design to denote duplicate objects
+    noun_split = noun.split("-")
+    
+    #remove 'spacing' - Assumed that "_" has been used in scene design to denote spaces in object names"
+    nouns = noun_split[0].split("_")
+    
+    if noun[0].isupper() or d.check(nouns[0]) == False:
         #assume that it is a proper noun
         return noun
     elif lang=="en_GB":
         #regular noun
         vowels = ["a", "e", "i", "o", "u"]
         if amount == 1:
-            return "the %s" % noun
+            return "the %s" % (' '.join(nouns))
         else:
             if noun[0] in vowels:
-                return "an %s" % noun
+                return "an %s" % (' '.join(nouns))
             else:
-                return "a %s" % noun
+                return "a %s" % (' '.join(nouns))
                 
     else:
         raise NotImplementedError
-             
-def check_for_exclusions(worldname, rel_list, iteration):
 
-    i = 0
-    relation = rel_list[iteration][3]
-    
-    if iteration > 0:
-        if relation == rel_list[iteration - 1][3]:
-            #These relations should have already been checked in a previous iteration.
-            return rel_list
-    
-    rel_poss_excl = []
-    
-    #Get a list of all the nodes that have the same relation to our current node
-    while  (iteration + i) < len(rel_list) and rel_list[iteration + i][3] == relation:
-        rel_poss_excl.append([rel_list[iteration + i][2], i])
-        i += 1
-    
-    length = len(rel_poss_excl)
-        
-    if length > 1:
-        i = 0
-        rel_excl = []
-        while(i < length):
-            
-            j = 0
-            
-            with underworlds.Context("spatial_description") as ctx:
-                world = ctx.worlds[worldname]
-                
-                node1 = world.scene.nodes[rel_poss_excl[i][0]]
-                bb1 = get_bounding_box_for_node(world.scene, node1)
-                
-                while (j < length):
-                    
-                    if i == j or j in rel_excl:
-                        j += 1
-                        continue
-                        
-                    node2 = world.scene.nodes[rel_poss_excl[j][0]]
-                    bb2 = get_bounding_box_for_node(world.scene, node2)
-                    
-                    if relation == "in":
-                        if isin(bb1, bb2):
-                            rel_excl.append(j) #Append to list to be deleted afterward
-                            
-                    elif relation == "onTop":
-                        pass
-                        
-                    elif relation == "above":
-                        if isin(bb2, bb1) or isabove(bb2, bb1):
-                            rel_excl.append(j)
-                        
-                    elif relation == "below":
-                        if isin(bb2, bb1) or isbelow(bb2, bb1) or isontop(bb2, bb1):
-                            rel_excl.append(j)
-                        
-                    elif relation == "close":
-                        pass
-                        
-                    elif relation == "toNorth":
-                        if isin(bb2, bb1) or istonorth(bb2, bb1):
-                            rel_excl.append(j)
-                        
-                    elif relation == "toEast":
-                        if isin(bb2, bb1) or istoeast(bb2, bb1):
-                            rel_excl.append(j)
-                        
-                    elif relation == "toSouth":
-                        if isin(bb2, bb1) or istoeast(bb2, bb1):
-                            rel_excl.append(j)
-                        
-                    elif relation == "toWest":
-                        if isin(bb2, bb1) or istowest(bb2, bb1):
-                            rel_excl.append(j)
-                            
-                    else:
-                        raise NotImplementedError
-                        
-                    j += 1
-            i += 1
-            
-        for j in reversed(sorted(rel_excl)):
-            del rel_list[iteration + j]
-            
-    return rel_list
-
-def amb_desc(worldName, rel_list, iteration, lang="en_GB"):
+def sr_desc(worldName, rel_list, iteration, lang="en_GB"):
     
     rel_list = check_for_exclusions(worldName, rel_list, iteration)
     
@@ -243,10 +208,10 @@ def amb_desc(worldName, rel_list, iteration, lang="en_GB"):
     
     return rel_list, description
 
-def gen_spatial_desc(worldName, nodeID, lang="en_GB", descType = "Simple"):
+def gen_spatial_desc(worldName, nodeID, camera = None, lang="en_GB", descType = "Simple"):
     
     #Retrieve the spatial relations and sort them by priority    
-    rel_list = sorted(get_node_sr(worldName, nodeID))
+    rel_list = sorted(get_node_sr(worldName, nodeID, camera))
     
     if len(rel_list) == 0:
         description = "No relations for Node %s" % nodeID
@@ -254,7 +219,7 @@ def gen_spatial_desc(worldName, nodeID, lang="en_GB", descType = "Simple"):
         
     if descType == "Simple":
         #Getting a simple one level description so only check the first relation
-        rel_list, description = amb_desc(worldName, rel_list, 0, lang)
+        rel_list, description = sr_desc(worldName, rel_list, 0, lang)
     else:
         raise NotImplementedError
     
