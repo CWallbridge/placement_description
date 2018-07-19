@@ -5,6 +5,7 @@ import rospy
 import numpy
 import geometry_msgs.msg
 import enchant
+import gc
 
 import underworlds
 from underworlds.helpers.geometry import get_bounding_box_for_node
@@ -154,6 +155,9 @@ def get_desc_relation(relation, lang="en_GB", two_dim=False):
 
 def add_noun_article(noun, amount, lang="en_GB"):
     
+    if noun[0] == "_":
+        return noun
+    
     d = enchant.Dict(lang)
     
     #remove numbering - Assumed that "-" has been used in scene design to denote duplicate objects
@@ -181,6 +185,9 @@ def add_noun_article(noun, amount, lang="en_GB"):
 
 def sr_desc(worldName, rel_list, iteration, lang="en_GB"):
     
+    if iteration >= len(rel_list):
+        return rel_list, "", ""
+    
     rel_list = check_for_exclusions(worldName, rel_list, iteration)
     
     with underworlds.Context("spatial_description") as ctx:
@@ -196,17 +203,68 @@ def sr_desc(worldName, rel_list, iteration, lang="en_GB"):
         if lang=="en_GB":
             description = sr_desc + " " + noun2 
         else:
-            raise NotImplementedError 
+            raise NotImplementedError
+        
+        part1 = ", "
         
         if iteration == 0:
             node1 = world.scene.nodes[rel_list[iteration][1]]
             amount1 = len(world.scene.nodebyname(node1.name))
             
-            noun1 = add_noun_article(node1.name, amount1, lang)
-            
-            description = noun1 + " is " + description
+            if lang=="en_GB":
+                part1 = add_noun_article(node1.name, amount1, lang) + " is "
+            else:
+                raise NotImplementedError   
     
-    return rel_list, description
+    return rel_list, description, part1
+
+def non_ambig_desc(worldName, rel_list, camera, lang="en_GB"):
+
+    with underworlds.Context("spatial_description") as ctx:
+        world = ctx.worlds[worldName]
+        desc_node = world.scene.nodes[rel_list[0][1]]
+        
+        node_list = []
+        
+        for node in world.scene.nodes:
+            node_list.append(node)
+        
+        node_list.remove(desc_node)
+        
+        i = 0
+        
+        description = ""
+        
+        while len(node_list) > 0 and i < len(rel_list):
+        
+            rel_list, desc, part1 = sr_desc(worldName, rel_list, i, lang)
+            
+            print i
+            j = 0
+            
+            for node2 in node_list:
+                print j
+                try:
+                    rel_list2 = node2.relList
+                except AttributeError:
+                    rel_list2 = sorted(get_node_sr(worldName, node2.id, camera))
+            
+                rel_list2, desc2, _ = sr_desc(worldName, rel_list2, i, lang)
+        
+                if desc == desc2:
+                    node2.relList = rel_list2
+                else:
+                    node_list.remove(node2)
+                    
+                j += 1
+            
+            description += part1 + desc
+                
+            i += 1
+            
+            gc.collect()
+
+    return description
 
 def gen_spatial_desc(worldName, nodeID, camera = None, lang="en_GB", descType = "Simple"):
     
@@ -219,7 +277,10 @@ def gen_spatial_desc(worldName, nodeID, camera = None, lang="en_GB", descType = 
         
     if descType == "Simple":
         #Getting a simple one level description so only check the first relation
-        rel_list, description = sr_desc(worldName, rel_list, 0, lang)
+        rel_list, description, part1 = sr_desc(worldName, rel_list, 0, lang)
+        description = part1 + description
+    elif descType == "NonAmbig":
+        description = non_ambig_desc(worldName, rel_list, camera, lang)
     else:
         raise NotImplementedError
     

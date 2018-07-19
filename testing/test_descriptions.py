@@ -113,6 +113,20 @@ class TestDescriptions(unittest.TestCase):
         print(description)
         self.assertTrue(description == "a cube is to the left of Main")
         
+    def test_non_ambig_descriptions(self):
+        
+        worldName = "base"
+        world = self.ctx.worlds[worldName]
+        
+        ModelLoader().load("../map/map_wEmpty.blend", world=worldName)
+        time.sleep(1) # leave some time for the loader to finish
+        
+        for node in world.scene.nodes:
+            if node.id == world.scene.rootnode.id:
+                continue
+            description = gen_spatial_desc(worldName, node.id, "default", "en_GB", "NonAmbig")
+            print description
+        
     def tearDown(self):
         self.ctx.close()
     
