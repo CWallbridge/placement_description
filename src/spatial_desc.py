@@ -235,28 +235,28 @@ def non_ambig_desc(worldName, rel_list, camera, lang="en_GB"):
         
         description = ""
         
-        while len(node_list) > 0 and i < len(rel_list):
+        node_skip = []
+        
+        while len(node_list) > len(node_skip) and i < len(rel_list):
         
             rel_list, desc, part1 = sr_desc(worldName, rel_list, i, lang)
             
-            print i
-            j = 0
-            
             for node2 in node_list:
-                print j
+                
+                if node2 in node_skip:
+                    continue
+                
                 try:
                     rel_list2 = node2.relList
                 except AttributeError:
                     rel_list2 = sorted(get_node_sr(worldName, node2.id, camera))
             
                 rel_list2, desc2, _ = sr_desc(worldName, rel_list2, i, lang)
-        
+                
                 if desc == desc2:
                     node2.relList = rel_list2
                 else:
-                    node_list.remove(node2)
-                    
-                j += 1
+                    node_skip.append(node2)
             
             description += part1 + desc
                 

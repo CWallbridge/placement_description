@@ -121,11 +121,9 @@ class TestDescriptions(unittest.TestCase):
         ModelLoader().load("../map/map_wEmpty.blend", world=worldName)
         time.sleep(1) # leave some time for the loader to finish
         
-        for node in world.scene.nodes:
-            if node.id == world.scene.rootnode.id:
-                continue
-            description = gen_spatial_desc(worldName, node.id, "default", "en_GB", "NonAmbig")
-            print description
+        node = world.scene.nodebyname("_empty.003")[0]
+        description = gen_spatial_desc(worldName, node.id, "default", "en_GB", "NonAmbig")
+        print description
         
     def tearDown(self):
         self.ctx.close()
