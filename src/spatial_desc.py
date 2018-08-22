@@ -160,11 +160,7 @@ def add_noun_article(noun, amount, lang="en_GB"):
     
     d = enchant.Dict(lang)
     
-    #remove numbering - Assumed that "-" has been used in scene design to denote duplicate objects
-    noun_split = noun.split("-")
-    
-    #remove 'spacing' - Assumed that "_" has been used in scene design to denote spaces in object names"
-    nouns = noun_split[0].split("_")
+    nouns = noun.split(" ")
     
     if noun[0].isupper() or d.check(nouns[0]) == False:
         #assume that it is a proper noun
@@ -173,12 +169,12 @@ def add_noun_article(noun, amount, lang="en_GB"):
         #regular noun
         vowels = ["a", "e", "i", "o", "u"]
         if amount == 1:
-            return "the %s" % (' '.join(nouns))
+            return "the %s" % (noun)
         else:
             if noun[0] in vowels:
-                return "an %s" % (' '.join(nouns))
+                return "an %s" % (noun)
             else:
-                return "a %s" % (' '.join(nouns))
+                return "a %s" % (noun)
                 
     else:
         raise NotImplementedError
@@ -218,16 +214,13 @@ def sr_desc(worldName, rel_list, iteration, lang="en_GB"):
     
     return rel_list, description, part1
 
-def non_ambig_desc(worldName, rel_list, camera, lang="en_GB"):
+def non_ambig_desc(worldName, rel_list, camera, add_node_chks=[], lang="en_GB"):
 
     with underworlds.Context("spatial_description") as ctx:
         world = ctx.worlds[worldName]
         desc_node = world.scene.nodes[rel_list[0][1]]
         
-        node_list = []
-        
-        for node in world.scene.nodes:
-            node_list.append(node)
+        node_list = world.scene.nodebyname(desc_node.name) + add_node_chks
         
         node_list.remove(desc_node)
         
@@ -266,7 +259,7 @@ def non_ambig_desc(worldName, rel_list, camera, lang="en_GB"):
 
     return description
 
-def gen_spatial_desc(worldName, nodeID, camera = None, lang="en_GB", descType = "Simple"):
+def gen_spatial_desc(worldName, nodeID, camera=None, add_node_chks=[], lang="en_GB", descType = "Simple"):
     
     #Retrieve the spatial relations and sort them by priority    
     rel_list = sorted(get_node_sr(worldName, nodeID, camera))
@@ -280,7 +273,7 @@ def gen_spatial_desc(worldName, nodeID, camera = None, lang="en_GB", descType = 
         rel_list, description, part1 = sr_desc(worldName, rel_list, 0, lang)
         description = part1 + description
     elif descType == "NonAmbig":
-        description = non_ambig_desc(worldName, rel_list, camera, lang)
+        description = non_ambig_desc(worldName, rel_list, camera, add_node_chks, lang)
     else:
         raise NotImplementedError
     
