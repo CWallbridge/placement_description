@@ -179,105 +179,103 @@ def add_noun_article(noun, amount, lang="en_GB"):
     else:
         raise NotImplementedError
 
-def sr_desc(worldName, rel_list, iteration, lang="en_GB"):
+def sr_desc(ctx, worldName, rel_list, iteration, lang="en_GB"):
     
     if iteration >= len(rel_list):
         return rel_list, "", ""
     
-    rel_list = check_for_exclusions(worldName, rel_list, iteration)
+    rel_list = check_for_exclusions(ctx, worldName, rel_list, iteration)
     
-    with underworlds.Context("spatial_description") as ctx:
-        world = ctx.worlds[worldName]
-        
-        node2 = world.scene.nodes[rel_list[iteration][2]]
-        amount2 = len(world.scene.nodebyname(node2.name))
-        
-        noun2 = add_noun_article(node2.name, amount2, lang)
-        
-        sr_desc = get_desc_relation(rel_list[iteration][3], lang)
-        
-        if lang=="en_GB":
-            description = sr_desc + " " + noun2 
-        else:
-            raise NotImplementedError
-        
-        part1 = ", "
-        
-        if iteration == 0:
-            node1 = world.scene.nodes[rel_list[iteration][1]]
-            amount1 = len(world.scene.nodebyname(node1.name))
-            
-            if lang=="en_GB":
-                part1 = add_noun_article(node1.name, amount1, lang) + " is "
-            else:
-                raise NotImplementedError   
+    world = ctx.worlds[worldName]
     
-    return rel_list, description, part1
-
-def non_ambig_desc(worldName, rel_list, camera, add_node_chks=[], lang="en_GB"):
-
-    with underworlds.Context("spatial_description") as ctx:
-        world = ctx.worlds[worldName]
-        desc_node = world.scene.nodes[rel_list[0][1]]
-        
-        node_list = world.scene.nodebyname(desc_node.name) + add_node_chks
-        
-        node_list.remove(desc_node)
-        
-        i = 0
-        
-        description = ""
-        
-        node_skip = []
-        
-        while len(node_list) > len(node_skip) and i < len(rel_list):
-        
-            rel_list, desc, part1 = sr_desc(worldName, rel_list, i, lang)
-            
-            for node2 in node_list:
-                
-                if node2 in node_skip:
-                    continue
-                
-                try:
-                    rel_list2 = node2.relList
-                except AttributeError:
-                    rel_list2 = sorted(get_node_sr(worldName, node2.id, camera))
-            
-                rel_list2, desc2, _ = sr_desc(worldName, rel_list2, i, lang)
-                
-                if desc == desc2:
-                    node2.relList = rel_list2
-                else:
-                    node_skip.append(node2)
-            
-            description += part1 + desc
-                
-            i += 1
-            
-            gc.collect()
-
-    return description
-
-def gen_spatial_desc(worldName, nodeID, camera=None, add_node_chks=[], lang="en_GB", descType = "Simple"):
+    node2 = world.scene.nodes[rel_list[iteration][2]]
+    amount2 = len(world.scene.nodebyname(node2.name))
     
-    #Retrieve the spatial relations and sort them by priority    
-    rel_list = sorted(get_node_sr(worldName, nodeID, camera))
+    noun2 = add_noun_article(node2.name, amount2, lang)
     
-    if len(rel_list) == 0:
-        description = "No relations for Node %s" % nodeID
-        return description
-        
-    if descType == "Simple":
-        #Getting a simple one level description so only check the first relation
-        rel_list, description, part1 = sr_desc(worldName, rel_list, 0, lang)
-        description = part1 + description
-    elif descType == "NonAmbig":
-        description = non_ambig_desc(worldName, rel_list, camera, add_node_chks, lang)
+    sr_desc = get_desc_relation(rel_list[iteration][3], lang)
+    
+    if lang=="en_GB":
+        description = sr_desc + " " + noun2 
     else:
         raise NotImplementedError
     
+    part1 = ", "
+    
+    if iteration == 0:
+        node1 = world.scene.nodes[rel_list[iteration][1]]
+        amount1 = len(world.scene.nodebyname(node1.name))
+        
+        if lang=="en_GB":
+            part1 = add_noun_article(node1.name, amount1, lang) + " is "
+        else:
+            raise NotImplementedError   
+    
+    return rel_list, description, part1
+
+def non_ambig_desc(ctx, worldName, rel_list, camera, add_node_chks=[], lang="en_GB"):
+
+    world = ctx.worlds[worldName]
+    desc_node = world.scene.nodes[rel_list[0][1]]
+    
+    node_list = world.scene.nodebyname(desc_node.name) + add_node_chks
+    
+    node_list.remove(desc_node)
+    
+    i = 0
+    
+    description = ""
+    
+    node_skip = []
+    
+    while len(node_list) > len(node_skip) and i < len(rel_list):
+    
+        rel_list, desc, part1 = sr_desc(ctx, worldName, rel_list, i, lang)
+        
+        for node2 in node_list:
+            
+            if node2 in node_skip:
+                continue
+            
+            try:
+                rel_list2 = node2.relList
+            except AttributeError:
+                rel_list2 = sorted(get_node_sr(ctx, worldName, node2.id, camera))
+        
+            rel_list2, desc2, _ = sr_desc(ctx, worldName, rel_list2, i, lang)
+            
+            if desc == desc2:
+                node2.relList = rel_list2
+            else:
+                node_skip.append(node2)
+        
+        description += part1 + desc
+            
+        i += 1
+        
+        gc.collect()
+
     return description
+
+def gen_spatial_desc(ctx, worldName, nodeID, camera=None, add_node_chks=[], lang="en_GB", descType = "Simple"):
+    
+    #Retrieve the spatial relations and sort them by priority
+	rel_list = sorted(get_node_sr(ctx, worldName, nodeID, camera))
+	
+	if len(rel_list) == 0:
+		description = "No relations for Node %s" % nodeID
+		return description
+		
+	if descType == "Simple":
+		#Getting a simple one level description so only check the first relation
+		rel_list, description, part1 = sr_desc(ctx, worldName, rel_list, 0, lang)
+		description = part1 + description
+	elif descType == "NonAmbig":
+		description = non_ambig_desc(ctx, worldName, rel_list, camera, add_node_chks, lang)
+	else:
+		raise NotImplementedError
+
+	return description
     
 if __name__ == "__main__":
     
