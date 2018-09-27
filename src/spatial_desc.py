@@ -6,6 +6,7 @@ import numpy
 import geometry_msgs.msg
 import enchant
 import gc
+import random
 
 import underworlds
 from underworlds.helpers.geometry import get_bounding_box_for_node
@@ -152,6 +153,22 @@ def get_desc_relation(relation, lang="en_GB", two_dim=False):
         
     else:
         raise NotImplementedError
+        
+def get_negation(lang="en_GB"):
+    
+    if lang=="en_GB":
+        negate = ["no", "nope"]
+    else:
+        raise NotImplementedError
+        
+    return random.choice(negate)
+    
+def get_conjunction(lang="en_GB"):
+    
+    if lang=="en_GB":
+        return " and"
+    else:
+        raise NotImplementedError
 
 def add_noun_article(noun, amount, lang="en_GB"):
     
@@ -213,14 +230,21 @@ def sr_desc(ctx, worldName, rel_list, iteration, lang="en_GB"):
     
     return rel_list, description, part1
 
-def non_ambig_desc(ctx, worldName, rel_list, camera, add_node_chks=[], lang="en_GB"):
+def non_ambig_desc(ctx, worldName, rel_list, camera, adt_node_chks=[], lang="en_GB", desc_type="placement"):
 
     world = ctx.worlds[worldName]
     desc_node = world.scene.nodes[rel_list[0][1]]
     
-    node_list = world.scene.nodebyname(desc_node.name) + add_node_chks
+    if desc_type == "locate":
+        node_list = world.scene.nodebyname(desc_node.name) + adt_node_chks
+    else:
+        node_list = world.scene.nodebyname("empty space") + adt_node_chks
     
-    node_list.remove(desc_node)
+    if desc_node in node_list:
+        node_list.remove(desc_node)
+    
+    #Ensure no duplicates
+    node_list = list(set(node_list))
     
     i = 0
     
@@ -231,6 +255,7 @@ def non_ambig_desc(ctx, worldName, rel_list, camera, add_node_chks=[], lang="en_
     while len(node_list) > len(node_skip) and i < len(rel_list):
     
         rel_list, desc, part1 = sr_desc(ctx, worldName, rel_list, i, lang)
+        add_desc = False
         
         for node2 in node_list:
             
@@ -242,40 +267,135 @@ def non_ambig_desc(ctx, worldName, rel_list, camera, add_node_chks=[], lang="en_
             except AttributeError:
                 rel_list2 = sorted(get_node_sr(ctx, worldName, node2.id, camera))
         
-            rel_list2, desc2, _ = sr_desc(ctx, worldName, rel_list2, i, lang)
+            rel_list2 = check_for_exclusions(ctx, worldName, rel_list2, i)
+            node_desc = world.scene.nodes[rel_list[i][2]]
+            node_desc2 = world.scene.nodes[rel_list2[i][2]]
             
-            if desc == desc2:
+            if rel_list[i][3] == rel_list2[i][3] and node_desc.name == node_desc2.name:
                 node2.relList = rel_list2
             else:
                 node_skip.append(node2)
+                add_desc = True
+                print node2.name
         
-        description += part1 + desc
+        if add_desc == True:
+            if len(node_list) <= len(node_skip) and i != 0:
+                description += get_conjunction(lang) + " " + desc
+            else:
+                description += part1 + desc
             
         i += 1
         
         gc.collect()
-
+        
     return description
+    
+def mnt_vector_list(vect_list, vector_sum, k, new_vector):
+    
+    vect_list.append(new_vector)
+    vector_sum = vector_sum + new_vector
+    
+    if len(vect_list) > k:
+        old_vector = vector_list.pop(0)
+        vector_sum = vector_sum - old_vector
+        
+    vector_avg = vector_sum/k
+    
+    return vect_list, vector_sum, vector_avg
+    
+def calc_angle_between_vectors(vector1, vector2, vector1_mag, vector2_mag):
+    
+    unit_vector_1 = vector1/vector1_mag
+    unit_vector_2 = vector2/vector2_mag
+    angle = numpy.arccos(numpy.clip(numpy.dot(unit_vector_1, unit_vector_2), -1.0, 1.0))
+    
+    return angle
+    
+    
+def calc_feedback(vector_avg, cur_pos, target_pos, min_dist, threshold_mag, threshold_angle, potential_target_positions, calc_type="magnitude")
+
+    target_vector = target_pos - cur_pos
+    magnitude_targ = numpy.linalg.norm(target_vector)
+    
+    if magnitude_targ < min_dist:
+        #If the current position is too close calculations chance for incorrect calculation based on overshoot, plus likely to be within success range
+        return "no action"
+        
+    magnitude_cur = numpy.linalg.norm(vector_avg)
+    
+    if calc_type == "magnitude" or calc_type == "both":
+        #Based on the magnitude of the vector_avg we decide if a target has been chosen and then try to compare
+        
+        if magnitude_cur < threshold_mag:
+            #User is likely undecided, may need prompting
+            return "elaborate"
+        
+    angle = calc_angle_between_vectors(target_vector, vector_avg, magnitude_targ, magnitude_cur)
+    
+    if angle <= threshold_angle:
+        #User is on target
+        return "no action"
+    elif calc_type == "magnitude":
+        #Doing no further calculation, they are heading in the wrong direction
+        return "negate"
+                
+    if calc_type == "potential_target" or calc_type == "both":
+        
+        for pot_targ_pos in potential_target_positions:
+            pot_target_vector = pot_target_pos - cur_pos
+                
+            magnitude_pot = numpy.linalg.norm(pot_target_vector)
+            angle = calc_angle_between_vectors(pot_target_vector, vector_avg, magnitude_pot, magnitude_cur)
+            
+            if angle <= threshold_angle:
+                #We believe user has chosen the wrong target
+                return "negate"
+        
+        #User does not appear to have chosen a target, may need prompting.
+        
+        return "elaborate"
+        
+    
+def dynamic_desc(ctx, worldName, rel_list, nodeID, iteration, fb_type, camera=None, lang="en_gb"):
+    
+    world = ctx.worlds[worldName]
+    desc_node = world.scene.nodes[rel_list[0][1]]
+    
+    if fb_type == "initial":
+        rel_list, description, part1 = sr_desc(ctx, worldName, rel_list, 0, lang)
+        description = part1 + description
+        iteration = 1
+    elif fb_type == "elaborate":
+        rel_list, description, part1 = sr_desc(ctx, worldName, rel_list, iteration, lang)
+        iteration += 1
+    elif fb_type == "negate":
+        description = get_negation(lang)
+    else:
+        #no action
+        description = ""
+    
+    return description, rel_list, iteration
+    
 
 def gen_spatial_desc(ctx, worldName, nodeID, camera=None, add_node_chks=[], lang="en_GB", descType = "Simple"):
     
     #Retrieve the spatial relations and sort them by priority
-	rel_list = sorted(get_node_sr(ctx, worldName, nodeID, camera))
-	
-	if len(rel_list) == 0:
-		description = "No relations for Node %s" % nodeID
-		return description
-		
-	if descType == "Simple":
-		#Getting a simple one level description so only check the first relation
-		rel_list, description, part1 = sr_desc(ctx, worldName, rel_list, 0, lang)
-		description = part1 + description
-	elif descType == "NonAmbig":
-		description = non_ambig_desc(ctx, worldName, rel_list, camera, add_node_chks, lang)
-	else:
-		raise NotImplementedError
+    rel_list = sorted(get_node_sr(ctx, worldName, nodeID, camera))
+    
+    if len(rel_list) == 0:
+        description = "No relations for Node %s" % nodeID
+        return description
+        
+    if descType == "Simple":
+        #Getting a simple one level description so only check the first relation
+        rel_list, description, part1 = sr_desc(ctx, worldName, rel_list, 0, lang)
+        description = part1 + description
+    elif descType == "NonAmbig":
+        description = non_ambig_desc(ctx, worldName, rel_list, camera, add_node_chks, lang)
+    else:
+        raise NotImplementedError
 
-	return description
+    return description
     
 if __name__ == "__main__":
     
