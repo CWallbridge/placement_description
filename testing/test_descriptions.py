@@ -122,7 +122,9 @@ class TestDescriptions(unittest.TestCase):
         target_node2 = world.scene.nodebyname("police_department")[0]
         for node in world.scene.nodes:
             format_name(worldName, node.id)
-            
+        
+        time.sleep(2)
+        
         description = gen_spatial_desc(self.ctx, worldName, target_node.id, "default", [], "en_GB", "NonAmbig")
         print description
         
