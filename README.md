@@ -9,6 +9,4 @@ This repository is a work in progress. This project intends to allow for
 
 Install ``placement_description`` by running:
 
-::
-
     $ python setup.py install
