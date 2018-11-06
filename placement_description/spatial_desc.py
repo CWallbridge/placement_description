@@ -276,7 +276,6 @@ def non_ambig_desc(ctx, worldName, rel_list, camera, adt_node_chks=[], lang="en_
             else:
                 node_skip.append(node2)
                 add_desc = True
-                print node2.name
         
         if add_desc == True:
             if len(node_list) <= len(node_skip) and i != 0:
