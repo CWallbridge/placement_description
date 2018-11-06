@@ -9,11 +9,7 @@ from underworlds.tools.loader import ModelLoader
 from underworlds.tools.spatial_relations import *
 from underworlds.tools.edit import *
 
-#Included until I setup an installer
-sl = os.path.dirname(__file__)
-sys.path.append(os.path.join(sl, '..', 'src'))
-
-from spatial_desc import *
+from placement_description import *
 
 #Check that the descriptions generated are the ones expected.
 

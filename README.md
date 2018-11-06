@@ -5,8 +5,10 @@ This repository is a work in progress. This project intends to allow for
  [underworlds](https://github.com/underworlds-robot/underworlds). 
  Intended for use with the [freeplay-sandbox](https://github.com/freeplay-sandbox).
  
- ## History
- 
- 24/Apr/2018 - Repository Created
- 
- 14/May/2018 - Sources added for syncing with underworlds - tf_receive and uwds_sync
+## Install
+
+Install ``placement_description`` by running:
+
+::
+
+    $ python setup.py install

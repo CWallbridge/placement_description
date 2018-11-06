@@ -312,7 +312,7 @@ def calc_angle_between_vectors(vector1, vector2, vector1_mag, vector2_mag):
     return angle
     
     
-def calc_feedback(vector_avg, cur_pos, target_pos, min_dist, threshold_mag, threshold_angle, potential_target_positions, calc_type="magnitude")
+def calc_feedback(vector_avg, cur_pos, target_pos, min_dist, threshold_mag, threshold_angle, potential_target_positions, calc_type="magnitude"):
 
     target_vector = target_pos - cur_pos
     magnitude_targ = numpy.linalg.norm(target_vector)
