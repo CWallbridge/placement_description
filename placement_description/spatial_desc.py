@@ -196,7 +196,7 @@ def add_noun_article(noun, amount, lang="en_GB"):
     else:
         raise NotImplementedError
 
-def sr_desc(ctx, worldName, rel_list, iteration, lang="en_GB"):
+def sr_desc(ctx, worldName, rel_list, iteration, lang="en_GB", two_dim = False):
     
     if iteration >= len(rel_list):
         return rel_list, "", ""
@@ -210,7 +210,7 @@ def sr_desc(ctx, worldName, rel_list, iteration, lang="en_GB"):
     
     noun2 = add_noun_article(node2.name, amount2, lang)
     
-    sr_desc = get_desc_relation(rel_list[iteration][3], lang)
+    sr_desc = get_desc_relation(rel_list[iteration][3], lang, two_dim)
     
     if lang=="en_GB":
         description = sr_desc + " " + noun2 
@@ -230,12 +230,12 @@ def sr_desc(ctx, worldName, rel_list, iteration, lang="en_GB"):
     
     return rel_list, description, part1
 
-def non_ambig_desc(ctx, worldName, rel_list, camera, adt_node_chks=[], lang="en_GB", desc_type="placement"):
+def non_ambig_desc(ctx, worldName, rel_list, camera, adt_node_chks=[], lang="en_GB", sub_desc_type="placement", two_dim = False):
 
     world = ctx.worlds[worldName]
     desc_node = world.scene.nodes[rel_list[0][1]]
     
-    if desc_type == "locate":
+    if sub_desc_type == "locate":
         node_list = world.scene.nodebyname(desc_node.name) + adt_node_chks
     else:
         node_list = world.scene.nodebyname("empty space") + adt_node_chks
@@ -254,7 +254,7 @@ def non_ambig_desc(ctx, worldName, rel_list, camera, adt_node_chks=[], lang="en_
     
     while len(node_list) > len(node_skip) and i < len(rel_list):
     
-        rel_list, desc, part1 = sr_desc(ctx, worldName, rel_list, i, lang)
+        rel_list, desc, part1 = sr_desc(ctx, worldName, rel_list, i, lang, two_dim)
         add_desc = False
         
         for node2 in node_list:
@@ -376,7 +376,7 @@ def dynamic_desc(ctx, worldName, rel_list, nodeID, iteration, fb_type, camera=No
     return description, rel_list, iteration
     
 
-def gen_spatial_desc(ctx, worldName, nodeID, camera=None, add_node_chks=[], lang="en_GB", descType = "Simple"):
+def gen_spatial_desc(ctx, worldName, nodeID, camera=None, add_node_chks=[], lang="en_GB", descType = "Simple", sub_desc_type = "placement", two_dim = False):
     
     #Retrieve the spatial relations and sort them by priority
     rel_list = sorted(get_node_sr(ctx, worldName, nodeID, camera))
@@ -390,7 +390,7 @@ def gen_spatial_desc(ctx, worldName, nodeID, camera=None, add_node_chks=[], lang
         rel_list, description, part1 = sr_desc(ctx, worldName, rel_list, 0, lang)
         description = part1 + description
     elif descType == "NonAmbig":
-        description = non_ambig_desc(ctx, worldName, rel_list, camera, add_node_chks, lang)
+        description = non_ambig_desc(ctx, worldName, rel_list, camera, add_node_chks, lang, sub_desc_type, two_dim)
     else:
         raise NotImplementedError
 
