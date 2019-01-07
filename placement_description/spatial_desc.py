@@ -229,6 +229,50 @@ def sr_desc(ctx, worldName, rel_list, iteration, lang="en_GB", two_dim = False):
             raise NotImplementedError   
     
     return rel_list, description, part1
+    
+def disambiguate(ctx, worldName, desc_node, node_list, rel_list, lang):
+    
+    world = ctx.worlds[worldName]
+    
+    i = 0
+    
+    node_skip = []
+    add_desc = False
+    
+    while len(node_list) > len(node_skip) and i < len(rel_list):
+        rel_list, desc, part1 = sr_desc(ctx, worldName, rel_list, i, lang, two_dim)
+        
+        for node2 in node_list:
+        
+            if node2 in node_skip:
+                    continue
+                
+                try:
+                    rel_list2 = node2.relList
+                except AttributeError:
+                    rel_list2 = sorted(get_node_sr(ctx, worldName, node2.id, camera))
+            
+                rel_list2 = check_for_exclusions(ctx, worldName, rel_list2, i)
+                node_desc = world.scene.nodes[rel_list[i][2]]
+                node_desc2 = world.scene.nodes[rel_list2[i][2]]
+                
+                if rel_list[i][3] == rel_list2[i][3] and node_desc.name == node_desc2.name:
+                    node2.relList = rel_list2
+                else:
+                    node_skip.append(node2)
+                    add_desc = True
+                
+        if add_desc == True:
+            if len(node_list) <= len(node_skip) and i != 0:
+                description += get_conjunction(lang) + " " + desc
+            else:
+                description += part1 + desc
+                
+        i += 1
+        
+        gc.collect()
+        
+    return rel_list, description, part1
 
 def non_ambig_desc(ctx, worldName, rel_list, camera, adt_node_chks=[], lang="en_GB", sub_desc_type="placement", two_dim = False):
 
@@ -355,7 +399,7 @@ def calc_feedback(vector_avg, cur_pos, target_pos, min_dist, threshold_mag, thre
         return "elaborate"
         
     
-def dynamic_desc(ctx, worldName, rel_list, nodeID, iteration, fb_type, camera=None, lang="en_gb"):
+def dynamic_desc(ctx, worldName, rel_list, nodeID, iteration, fb_type, location, camera=None, lang="en_gb"):
     
     world = ctx.worlds[worldName]
     desc_node = world.scene.nodes[rel_list[0][1]]
@@ -365,8 +409,10 @@ def dynamic_desc(ctx, worldName, rel_list, nodeID, iteration, fb_type, camera=No
         description = part1 + description
         iteration = 1
     elif fb_type == "elaborate":
-        rel_list, description, part1 = sr_desc(ctx, worldName, rel_list, iteration, lang)
-        iteration += 1
+        node_list = []
+        node_list.append(world.scene.nodebylocation(location))
+        rel_list, description, part1 = disambiguate(ctx, worldName, desc_node, node_list, rel_list, lang)
+        #iteration += 1
     elif fb_type == "negate":
         description = get_negation(lang)
     else:
