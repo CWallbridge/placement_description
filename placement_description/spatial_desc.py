@@ -163,6 +163,15 @@ def get_negation(lang="en_GB"):
         
     return random.choice(negate)
     
+def get_affirmation(lang="en_GB"):
+    
+    if lang=="en_GB":
+        affirm = ["yes", "right", "yup"]
+    else:
+        raise NotImplementedError
+        
+    return random.choice(affirm)
+    
 def get_conjunction(lang="en_GB"):
     
     if lang=="en_GB":
@@ -230,7 +239,7 @@ def sr_desc(ctx, worldName, rel_list, iteration, lang="en_GB", two_dim = False):
     
     return rel_list, description, part1
     
-def disambiguate(ctx, worldName, desc_node, node_list, rel_list, lang):
+def disambiguate(ctx, worldName, desc_node, node_list, rel_list, lang="en_GB", two_dim = False):
     
     world = ctx.worlds[worldName]
     
@@ -399,33 +408,42 @@ def calc_feedback(vector_avg, cur_pos, target_pos, min_dist, threshold_mag, thre
         return "elaborate"
         
     
-def dynamic_desc(ctx, worldName, rel_list, nodeID, iteration, fb_type, location, camera=None, lang="en_gb"):
+def dynamic_desc(ctx, worldName, rel_list, nodeID, iteration, fb_type, camera=None, lang="en_gb", two_dim = False):
+    
+    if len(rel_list) == 0:
+		rel_list = get_sorted_sr(ctx, worldName, nodeID, camera)
     
     world = ctx.worlds[worldName]
     desc_node = world.scene.nodes[rel_list[0][1]]
     
     if fb_type == "initial":
-        rel_list, description, part1 = sr_desc(ctx, worldName, rel_list, 0, lang)
+        rel_list, description, part1 = sr_desc(ctx, worldName, rel_list, 0, lang, two_dim)
         description = part1 + description
-        iteration = 1
     elif fb_type == "elaborate":
         node_list = []
         node_list.append(world.scene.nodebylocation(location))
-        rel_list, description, part1 = disambiguate(ctx, worldName, desc_node, node_list, rel_list, lang)
+        rel_list, description, part1 = disambiguate(ctx, worldName, desc_node, node_list, rel_list, lang, two_dim)
         #iteration += 1
     elif fb_type == "negate":
         description = get_negation(lang)
+    elif fb_type == "positive":
+		description = get_affirmation(lang)
     else:
         #no action
         description = ""
     
-    return description, rel_list, iteration
+    return description, rel_list
     
+def get_sorted_sr(ctx, worldName, nodeID, camera):
+	
+	rel_list = sorted(get_node_sr(ctx, worldName, nodeID, camera))
+	
+	return rel_list
 
 def gen_spatial_desc(ctx, worldName, nodeID, camera=None, add_node_chks=[], lang="en_GB", descType = "Simple", sub_desc_type = "placement", two_dim = False):
     
     #Retrieve the spatial relations and sort them by priority
-    rel_list = sorted(get_node_sr(ctx, worldName, nodeID, camera))
+    rel_list = get_sorted_sr(ctx, worldName, nodeID, camera)
     
     if len(rel_list) == 0:
         description = "No relations for Node %s" % nodeID
