@@ -12,6 +12,8 @@ import underworlds
 from underworlds.helpers.geometry import get_bounding_box_for_node
 from underworlds.tools.spatial_relations import *
 
+from operator import itemgetter
+
 import logging; logger = logging.getLogger("spatial_description")
 
 def isindesc(lang="en_GB"):
@@ -46,6 +48,13 @@ def isclosedesc(lang="en_GB"):
 
     if lang=="en_GB":
         return "close to"
+    else:
+        raise NotImplementedError
+        
+def isnextdesc(lang="en_GB"):
+
+    if lang=="en_GB":
+        return "next to"
     else:
         raise NotImplementedError
 
@@ -126,6 +135,9 @@ def get_desc_relation(relation, lang="en_GB", two_dim=False):
         
     elif relation == "close":
         return isclosedesc(lang)
+        
+    elif relation == "nextTo":
+        return isnextdesc(lang)
         
     elif relation == "toBack":
         return istobackdesc(lang, two_dim)
@@ -239,37 +251,51 @@ def sr_desc(ctx, worldName, rel_list, iteration, lang="en_GB", two_dim = False):
     
     return rel_list, description, part1
     
-def disambiguate(ctx, worldName, desc_node, node_list, rel_list, lang="en_GB", two_dim = False):
+def disambiguate(ctx, worldName, desc_node, node_list, rel_list, camera = None, lang="en_GB", two_dim = False, simple = False, ordering = 0):
     
     world = ctx.worlds[worldName]
     
     i = 0
     
     node_skip = []
-    add_desc = False
+    
+    part1 = ""
+    description = ""
     
     while len(node_list) > len(node_skip) and i < len(rel_list):
         rel_list, desc, part1 = sr_desc(ctx, worldName, rel_list, i, lang, two_dim)
         
+        add_desc = False
+        
         for node2 in node_list:
         
             if node2 in node_skip:
-                    continue
+                continue
                 
-                try:
-                    rel_list2 = node2.relList
-                except AttributeError:
-                    rel_list2 = sorted(get_node_sr(ctx, worldName, node2.id, camera))
+            try:
+                rel_list2 = node2.relList
+            except AttributeError:
+                rel_list2 = get_sorted_sr(ctx, worldName, node2.id, camera, simple, ordering)
+        
+            rel_list2 = check_for_exclusions(ctx, worldName, rel_list2, i)
+            node_desc = world.scene.nodes[rel_list[i][2]]
             
-                rel_list2 = check_for_exclusions(ctx, worldName, rel_list2, i)
-                node_desc = world.scene.nodes[rel_list[i][2]]
-                node_desc2 = world.scene.nodes[rel_list2[i][2]]
-                
-                if rel_list[i][3] == rel_list2[i][3] and node_desc.name == node_desc2.name:
-                    node2.relList = rel_list2
-                else:
-                    node_skip.append(node2)
-                    add_desc = True
+            j = 0
+            check_rel_name = False
+            
+            while j < len(rel_list2) and check_rel_name == False:
+                node_desc2 = world.scene.nodes[rel_list2[j][2]]
+                if node_desc.name == node_desc2.name and rel_list[i][3] == rel_list2[j][3]:
+                    check_rel_name = True
+                j += 1
+            
+            #if rel_list[i][3] == rel_list2[i][3] and node_desc.name == node_desc2.name:
+                #node2.relList = rel_list2
+            if check_rel_name == True:
+                node2.relList = rel_list2
+            else:
+                node_skip.append(node2)
+                add_desc = True
                 
         if add_desc == True:
             if len(node_list) <= len(node_skip) and i != 0:
@@ -283,7 +309,7 @@ def disambiguate(ctx, worldName, desc_node, node_list, rel_list, lang="en_GB", t
         
     return rel_list, description, part1
 
-def non_ambig_desc(ctx, worldName, rel_list, camera, adt_node_chks=[], lang="en_GB", sub_desc_type="placement", two_dim = False):
+def non_ambig_desc(ctx, worldName, rel_list, camera, adt_node_chks=[], lang="en_GB", sub_desc_type="placement", two_dim = False, simple = False, ordering = 0):
 
     world = ctx.worlds[worldName]
     desc_node = world.scene.nodes[rel_list[0][1]]
@@ -299,46 +325,48 @@ def non_ambig_desc(ctx, worldName, rel_list, camera, adt_node_chks=[], lang="en_
     #Ensure no duplicates
     node_list = list(set(node_list))
     
-    i = 0
+    rel_list, description, part1 = disambiguate(ctx, worldName, desc_node, node_list, rel_list, camera, lang, two_dim, simple, ordering)
     
-    description = ""
+    #i = 0
     
-    node_skip = []
+    #description = ""
     
-    while len(node_list) > len(node_skip) and i < len(rel_list):
+    #node_skip = []
     
-        rel_list, desc, part1 = sr_desc(ctx, worldName, rel_list, i, lang, two_dim)
-        add_desc = False
+    #while len(node_list) > len(node_skip) and i < len(rel_list):
+    
+        #rel_list, desc, part1 = sr_desc(ctx, worldName, rel_list, i, lang, two_dim)
+        #add_desc = False
         
-        for node2 in node_list:
+        #for node2 in node_list:
             
-            if node2 in node_skip:
-                continue
+            #if node2 in node_skip:
+                #continue
             
-            try:
-                rel_list2 = node2.relList
-            except AttributeError:
-                rel_list2 = sorted(get_node_sr(ctx, worldName, node2.id, camera))
+            #try:
+                #rel_list2 = node2.relList
+            #except AttributeError:
+                #rel_list2 = get_sorted_sr(ctx, worldName, node2.id, camera, simple, ordering))
         
-            rel_list2 = check_for_exclusions(ctx, worldName, rel_list2, i)
-            node_desc = world.scene.nodes[rel_list[i][2]]
-            node_desc2 = world.scene.nodes[rel_list2[i][2]]
+            #rel_list2 = check_for_exclusions(ctx, worldName, rel_list2, i)
+            #node_desc = world.scene.nodes[rel_list[i][2]]
+            #node_desc2 = world.scene.nodes[rel_list2[i][2]]
             
-            if rel_list[i][3] == rel_list2[i][3] and node_desc.name == node_desc2.name:
-                node2.relList = rel_list2
-            else:
-                node_skip.append(node2)
-                add_desc = True
+            #if rel_list[i][3] == rel_list2[i][3] and node_desc.name == node_desc2.name:
+                #node2.relList = rel_list2
+            #else:
+                #node_skip.append(node2)
+                #add_desc = True
         
-        if add_desc == True:
-            if len(node_list) <= len(node_skip) and i != 0:
-                description += get_conjunction(lang) + " " + desc
-            else:
-                description += part1 + desc
+        #if add_desc == True:
+            #if len(node_list) <= len(node_skip) and i != 0:
+                #description += get_conjunction(lang) + " " + desc
+            #else:
+                #description += part1 + desc
             
-        i += 1
+        #i += 1
         
-        gc.collect()
+        #gc.collect()
         
     return description
     
@@ -408,10 +436,10 @@ def calc_feedback(vector_avg, cur_pos, target_pos, min_dist, threshold_mag, thre
         return "elaborate"
         
     
-def dynamic_desc(ctx, worldName, rel_list, nodeID, iteration, fb_type, camera=None, lang="en_gb", two_dim = False):
+def dynamic_desc(ctx, worldName, rel_list, nodeID, iteration, fb_type, camera=None, lang="en_gb", two_dim = False, simple = False, ordering = 0):
     
     if len(rel_list) == 0:
-		rel_list = get_sorted_sr(ctx, worldName, nodeID, camera)
+        rel_list = get_sorted_sr(ctx, worldName, nodeID, camera)
     
     world = ctx.worlds[worldName]
     desc_node = world.scene.nodes[rel_list[0][1]]
@@ -422,28 +450,29 @@ def dynamic_desc(ctx, worldName, rel_list, nodeID, iteration, fb_type, camera=No
     elif fb_type == "elaborate":
         node_list = []
         node_list.append(world.scene.nodebylocation(location))
-        rel_list, description, part1 = disambiguate(ctx, worldName, desc_node, node_list, rel_list, lang, two_dim)
+        rel_list, description, part1 = disambiguate(ctx, worldName, desc_node, node_list, rel_list, camera, lang, two_dim, simple, ordering)
         #iteration += 1
     elif fb_type == "negate":
         description = get_negation(lang)
     elif fb_type == "positive":
-		description = get_affirmation(lang)
+        description = get_affirmation(lang)
     else:
         #no action
         description = ""
     
     return description, rel_list
     
-def get_sorted_sr(ctx, worldName, nodeID, camera):
-	
-	rel_list = sorted(get_node_sr(ctx, worldName, nodeID, camera))
-	
-	return rel_list
+def get_sorted_sr(ctx, worldName, nodeID, camera, simple, ordering):
+    
+    rel_list = sorted(get_node_sr(ctx, worldName, nodeID, camera, True, [], simple), key = itemgetter(ordering))
+    
+    return rel_list
 
-def gen_spatial_desc(ctx, worldName, nodeID, camera=None, add_node_chks=[], lang="en_GB", descType = "Simple", sub_desc_type = "placement", two_dim = False):
+def gen_spatial_desc(ctx, worldName, nodeID, camera=None, add_node_chks=[], lang="en_GB", descType = "Simple", sub_desc_type = "placement", two_dim = False, simple = False, ordering = 0):
     
     #Retrieve the spatial relations and sort them by priority
-    rel_list = get_sorted_sr(ctx, worldName, nodeID, camera)
+    rel_list = get_sorted_sr(ctx, worldName, nodeID, camera, simple, ordering)
+    
     
     if len(rel_list) == 0:
         description = "No relations for Node %s" % nodeID
@@ -454,7 +483,7 @@ def gen_spatial_desc(ctx, worldName, nodeID, camera=None, add_node_chks=[], lang
         rel_list, description, part1 = sr_desc(ctx, worldName, rel_list, 0, lang)
         description = part1 + description
     elif descType == "NonAmbig":
-        description = non_ambig_desc(ctx, worldName, rel_list, camera, add_node_chks, lang, sub_desc_type, two_dim)
+        description = non_ambig_desc(ctx, worldName, rel_list, camera, add_node_chks, lang, sub_desc_type, two_dim, simple, ordering)
     else:
         raise NotImplementedError
 
