@@ -169,7 +169,7 @@ def get_desc_relation(relation, lang="en_GB", two_dim=False):
 def get_negation(lang="en_GB"):
     
     if lang=="en_GB":
-        negate = ["no", "nope"]
+        negate = ["stop", "hold on", "not that way"]
     else:
         raise NotImplementedError
         
@@ -178,7 +178,7 @@ def get_negation(lang="en_GB"):
 def get_affirmation(lang="en_GB"):
     
     if lang=="en_GB":
-        affirm = ["yes", "right", "yup"]
+        affirm = ["keep going", "yeah"]
     else:
         raise NotImplementedError
         
@@ -436,7 +436,7 @@ def calc_feedback(vector_avg, cur_pos, target_pos, min_dist, threshold_mag, thre
         return "elaborate"
         
     
-def dynamic_desc(ctx, worldName, rel_list, nodeID, iteration, fb_type, camera=None, lang="en_gb", two_dim = False, simple = False, ordering = 0):
+def dynamic_desc(ctx, worldName, rel_list, nodeID, iteration, fb_type, camera=None, lang="en_gb", two_dim = False, simple = False, ordering = 0, disamb_type = "location"):
     
     if len(rel_list) == 0:
         rel_list = get_sorted_sr(ctx, worldName, nodeID, camera)
@@ -449,8 +449,16 @@ def dynamic_desc(ctx, worldName, rel_list, nodeID, iteration, fb_type, camera=No
         description = part1 + description
     elif fb_type == "elaborate":
         node_list = []
-        node_list.append(world.scene.nodebylocation(location))
-        rel_list, description, part1 = disambiguate(ctx, worldName, desc_node, node_list, rel_list, camera, lang, two_dim, simple, ordering)
+        if disamb_type == "location":
+            node_list.append(world.scene.nodebylocation(location))
+        elif disamb_type == "nearby":
+            for rel in rel_list:
+                if rel[4] == desc_node.name:
+                    node_list.append(world.scene.nodes[rel[2]])
+        if len(node_list) == 0:
+            description = "the " + desc_node.name
+        else:
+            rel_list, description, part1 = disambiguate(ctx, worldName, desc_node, node_list, rel_list, camera, lang, two_dim, simple, ordering)
         #iteration += 1
     elif fb_type == "negate":
         description = get_negation(lang)
