@@ -217,7 +217,7 @@ def add_noun_article(noun, amount, lang="en_GB"):
     else:
         raise NotImplementedError
 
-def sr_desc(ctx, worldName, rel_list, iteration, lang="en_GB", two_dim = False):
+def sr_desc(ctx, worldName, rel_list, iteration, first, lang="en_GB", two_dim = False):
     
     if iteration >= len(rel_list):
         return rel_list, "", ""
@@ -240,7 +240,7 @@ def sr_desc(ctx, worldName, rel_list, iteration, lang="en_GB", two_dim = False):
     
     part1 = ", "
     
-    if iteration == 0:
+    if first == True:
         node1 = world.scene.nodes[rel_list[iteration][1]]
         amount1 = len(world.scene.nodebyname(node1.name))
         
@@ -262,8 +262,10 @@ def disambiguate(ctx, worldName, desc_node, node_list, rel_list, camera = None, 
     part1 = ""
     description = ""
     
+    first = True
+    
     while len(node_list) > len(node_skip) and i < len(rel_list):
-        rel_list, desc, part1 = sr_desc(ctx, worldName, rel_list, i, lang, two_dim)
+        rel_list, desc, part1 = sr_desc(ctx, worldName, rel_list, i, first, lang, two_dim)
         
         add_desc = False
         
@@ -296,9 +298,10 @@ def disambiguate(ctx, worldName, desc_node, node_list, rel_list, camera = None, 
             else:
                 node_skip.append(node2)
                 add_desc = True
+                first = False
                 
         if add_desc == True:
-            if len(node_list) <= len(node_skip) and i != 0:
+            if ((len(node_list) <= len(node_skip) and i != 0) or ((i+1) == len(rel_list))) and description != "":
                 description += get_conjunction(lang) + " " + desc
             else:
                 description += part1 + desc
@@ -437,9 +440,9 @@ def calc_feedback(vector_avg, cur_pos, target_pos, min_dist, threshold_mag, thre
         
     
 def dynamic_desc(ctx, worldName, rel_list, nodeID, iteration, fb_type, camera=None, lang="en_gb", two_dim = False, simple = False, ordering = 0, disamb_type = "location"):
-    
+
     if len(rel_list) == 0:
-        rel_list = get_sorted_sr(ctx, worldName, nodeID, camera)
+        rel_list = get_sorted_sr(ctx, worldName, nodeID, camera, simple, ordering)
     
     world = ctx.worlds[worldName]
     desc_node = world.scene.nodes[rel_list[0][1]]
