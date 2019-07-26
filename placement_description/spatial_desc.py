@@ -196,6 +196,8 @@ def add_noun_article(noun, amount, lang="en_GB"):
     if noun[0] == "_":
         return noun
     
+    #print lang
+    
     d = enchant.Dict(lang)
     
     nouns = noun.split(" ")
@@ -448,7 +450,7 @@ def dynamic_desc(ctx, worldName, rel_list, nodeID, iteration, fb_type, camera=No
     desc_node = world.scene.nodes[rel_list[0][1]]
     
     if fb_type == "initial":
-        rel_list, description, part1 = sr_desc(ctx, worldName, rel_list, 0, lang, two_dim)
+        rel_list, description, part1 = sr_desc(ctx, worldName, rel_list, 0, True, lang, two_dim)
         description = part1 + description
     elif fb_type == "elaborate":
         node_list = []
